@@ -1,16 +1,37 @@
-import express from 'express';
+import express from "express"
+import db from "../db/index.js"
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    const products = [
-        { id: 1, name: 'Product 1', price: 19.99 },
-        { id: 2, name: 'Product 2', price: 29.99 },
-        { id: 3, name: 'Product 3', price: 39.99 },
-    ];
-
-    res.json(products);
+router.get('/', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT p.id, p.name, p.description, p.price, p.image_url, c.name AS category_name
+            FROM products p
+            JOIN categories c ON p.category_id = c.id
+        `)
+        res.json(result.rows)
+    } catch (error) {
+        console.error("Error running query: ", err)
+        res.status(500).send('Database error');
+    }
 });
+
+router.post("/", async (req, res) => {
+    try {
+        const { name, description, price, image_url, category_id } = req.body;
+        const result = await db.query(
+            `INSERT INTO products (name, description, price, image_url, category_id)
+            VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+            [name, description, price, image_url, category_id]
+        )
+        res.status(201).json(result.rows[0])
+        
+    } catch (error) {
+        console.error("Error running query: ", error)
+        res.status(500).send('Database error');
+    }
+})
 
 
 export default router;
