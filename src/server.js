@@ -12,3 +12,5 @@ app.use("/products", productsRouter);
 app.listen(PORT, ()=>{
     console.log(`Listening at port: ${PORT}`);
 })
+
+export default app; 
