@@ -54,5 +54,37 @@ router.post("/", async (req, res) => {
     }
 })
 
+router.put("/:id", async (req,res)=>{
+    const { name, description, price, image_url, category_id } = req.body;
+
+    try {
+        const result = await db.query(
+            `
+            UPDATE products 
+            SET 
+                name = $1,
+                description = $2,
+                price = $3,
+                image_url = $4,
+                category_id = $5
+            WHERE id = $6 
+            RETURNING *; 
+            `
+            , [name,description,price,image_url,category_id,req.params.id]
+        )
+
+        if (result.rows.length === 0){
+            return res.status(404).json({message: "Product not found"}); 
+        }
+
+        res.json(result.rows[0])
+    } catch (error) {
+        console.error("Error updating product: ", error); 
+        res.status(500).send("Database Error")
+    }
+})
+
+
+
 
 export default router;
