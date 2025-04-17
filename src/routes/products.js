@@ -84,7 +84,41 @@ router.put("/:id", async (req,res)=>{
     }
 })
 
+router.put("/:id/delete", async (req, res) => {
+    try {
+        const result = await db.query(
+            `UPDATE products SET is_deleted = true WHERE id = $1 RETURNING *`,
+            [req.params.id]
+        );
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Product not found." });
+        }
+
+        res.json({ message: "Product soft-deleted", product: result.rows[0] });
+    } catch (error) {
+        console.error("Soft delete error:", error);
+        res.status(500).send("Database error");
+    }
+});
+
+router.delete("/:id",async (req,res)=>{
+    try {
+        const result = await db.query(
+            `DELETE FROM products WHERE id = $1 RETURNING *`,
+            [req.params.id]
+        )
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Product not found." });
+        }
+
+        res.json({ message: "Product hard-deleted", product: result.rows[0] });
+    } catch (error) {
+        console.error("Hard delete error:", error);
+        res.status(500).send("Database error");
+    }
+})
 
 
 export default router;
