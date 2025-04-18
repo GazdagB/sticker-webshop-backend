@@ -1,5 +1,7 @@
 import express from "express"
 import db from "../db/index.js"
+import { productValidationRules, validateProductIdParam } from '../validators/productValidator.js';
+import { validate } from '../middlewares/validate.js';
 
 const router = express.Router();
 
@@ -17,7 +19,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get("/:id", async (req,res)=>{
+router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
     try{
         const result = await db.query(`
             SELECT p.id, p.name, p.description, p.price, p.image_url, c.name AS category_name 
@@ -38,7 +40,7 @@ router.get("/:id", async (req,res)=>{
     }
 })
 
-router.post("/", async (req, res) => {
+router.post("/", productValidationRules, validate,  async (req, res) => {
     try {
         const { name, description, price, image_url, category_id } = req.body;
         const result = await db.query(
@@ -54,7 +56,7 @@ router.post("/", async (req, res) => {
     }
 })
 
-router.put("/:id", async (req,res)=>{
+router.put("/:id", validateProductIdParam, validate, async (req,res)=>{
     const { name, description, price, image_url, category_id } = req.body;
 
     try {
@@ -84,7 +86,7 @@ router.put("/:id", async (req,res)=>{
     }
 })
 
-router.put("/:id/delete", async (req, res) => {
+router.put("/:id/delete", validateProductIdParam, validate, async (req, res) => {
     try {
         const result = await db.query(
             `UPDATE products SET is_deleted = true WHERE id = $1 RETURNING *`,
@@ -102,7 +104,7 @@ router.put("/:id/delete", async (req, res) => {
     }
 });
 
-router.delete("/:id",async (req,res)=>{
+router.delete("/:id", validateProductIdParam, validate, async (req,res)=>{
     try {
         const result = await db.query(
             `DELETE FROM products WHERE id = $1 RETURNING *`,
@@ -113,7 +115,7 @@ router.delete("/:id",async (req,res)=>{
             return res.status(404).json({ message: "Product not found." });
         }
 
-        res.json({ message: "Product hard-deleted", product: result.rows[0] });
+        res.status(204).json({ message: "Product hard-deleted", product: result.rows[0] });
     } catch (error) {
         console.error("Hard delete error:", error);
         res.status(500).send("Database error");
