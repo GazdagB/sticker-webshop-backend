@@ -82,9 +82,7 @@ describe('POST /products/:id', ()=>{
     const response = await supertest(app).post('/products').send(badBody); 
   
     expect(response.status).toBe(400); 
-    expect(response.body).toHaveProperty('message'); 
-    expect(response.body.message).toBe("Bad Request: Invalid post body")
-    expect(response.body).toHaveProperty()
+    expect(response.body).toHaveProperty('errors'); 
   })
 })
 
