@@ -121,3 +121,17 @@ describe('PUT (SOFT DELETE) /products/delete/:id', () => {
     await supertest(app).delete(`/products/${createdId}`);
   });
 });
+
+describe('PATCH /products/:id/stock', ()=>{
+    test('Has valid endpoint', async ()=>{
+      
+      const productId = 1
+
+      const response = await supertest(app).patch(`/products/${productId}`).send({
+        stock: 20
+      })
+
+      expect(response.status).not.toBe(404); 
+      
+    })
+})
