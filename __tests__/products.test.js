@@ -150,4 +150,42 @@ describe('PATCH /products/:id/stock', () => {
     const getRes = await supertest(app).get(`/products/${response.body.id}`);
     expect(getRes.body.stock).toBe(20);
   });
+
+  test("Should return 400 if body.stock is missing", async ()=>{
+    const product = await seedProduct();
+
+    const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({}); 
+
+    expect(res.status).toBe(400); 
+    expect(res.body).toHaveProperty('errors'); 
+
+    createdProductIds.push(product.body.id)
+  })
+
+  test("Should return 400 if stock is NaN", async ()=>{
+    const product = await seedProduct(); 
+
+    const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({stock: "twenty"}); 
+
+    expect(res.status).toBe(400); 
+    expect(res.body).toHaveProperty('errors');
+
+    createdProductIds.push(product.body.id)
+  })
+
+  test("Should return 404 if product does not exist", async ()=> {
+    const res = await supertest(app).patch(`/products/99999/stock`).send({stock: 10})
+
+    expect(res.status).toBe(404); 
+  })
+
+  test("Should return the updated product object", async ()=> {
+    const product = await seedProduct(); 
+
+    const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({stock: 20});
+
+    expect(res.body).toHaveProperty('stock', 20);
+
+    createdProductIds.push(product.body.id); 
+  })
 });
