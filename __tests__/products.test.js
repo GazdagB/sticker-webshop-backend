@@ -193,3 +193,17 @@ describe('PATCH /products/:id/stock', () => {
   
   })
 });
+
+describe("GET /products/soft_deleted", ()=>{
+  test('returns all the products with soft deleted propertis', async ()=>{
+    const product = await seedProduct();
+    createdProductIds.push(product.body.id); 
+
+    await supertest(app).put(`/products/${product.body.id}/delete`);
+
+    const getSofRes = await supertest(app).get("/products/soft_deleted"); 
+
+    expect(getSofRes.body).toHaveProperty("is_deleted", true);
+  })
+})
+
