@@ -1,6 +1,6 @@
 import express from "express"
 import db from "../db/index.js"
-import { productValidationRules, validateProductIdParam } from '../validators/productValidator.js';
+import { productValidationRules, validateProductIdParam, productStockValidationRules} from '../validators/productValidator.js';
 import { validate } from '../middlewares/validate.js';
 
 const router = express.Router();
@@ -8,10 +8,14 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const result = await db.query(`
-            SELECT p.id, p.name, p.description, p.price, p.image_url, c.name AS category_name
+            SELECT p.id, p.name, p.description, p.price, p.image_url, p.stock, c.name AS category_name
             FROM products p
             JOIN categories c ON p.category_id = c.id
+            WHERE p.is_deleted = false
         `)
+        if(result.rows.length <= 0){
+            return res.status(404).json({message: "There aren't any products"})
+        }
         res.json(result.rows)
     } catch (error) {
         console.error("Error running query: ", error)
@@ -19,13 +23,15 @@ router.get('/', async (req, res) => {
     }
 });
 
+//TODO: Add a get route where we can see all of the soft deleted products
+
 router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
     try{
         const result = await db.query(`
-            SELECT p.id, p.name, p.description, p.price, p.image_url, c.name AS category_name 
+            SELECT p.id, p.name, p.description, p.price, p.image_url, p.stock, c.name AS category_name 
             FROM products p
             JOIN categories c ON p.category_id =  c.id
-            WHERE p.id = $1
+            WHERE p.id = $1 AND p.is_deleted = false
             `, [req.params.id])
 
 
@@ -122,5 +128,26 @@ router.delete("/:id", validateProductIdParam, validate, async (req,res)=>{
     }
 })
 
+router.patch("/:id/stock",validateProductIdParam, productStockValidationRules, validate, async (req,res)=>{
+    const {id} = req.params; 
+    const {stock} = req.body; 
+    
+    try {
+        const result = await db.query(
+            `
+            UPDATE products SET stock = $1 WHERE id = $2 RETURNING * 
+            `, [stock,id])
+
+            console.log(result.rows[0]);
+            
+            if(result.rows.length === 0){
+                return res.status(404).json({message: "Product not found"})
+            }
+        res.json({message: 'Stock updated',product: result.rows[0]})
+    } catch (error) {
+        console.error('Error updating stock:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
 
 export default router;

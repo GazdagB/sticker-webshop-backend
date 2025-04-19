@@ -19,12 +19,13 @@ afterAll(async () => {
 describe('GET /products', () => {
   test('It should return a list of products', async () => {
     const seedRes = await seedProduct();
+    createdProductIds.push(seedRes.body.id);
     const response = await supertest(app).get('/products');
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true); // Ensure the response is an array
     expect(response.body.length).toBeGreaterThan(0); // Ensure we have at least one product
 
-    createdProductIds.push(seedRes.body.id);
+    
   });
 
   test('It should have the defined structure', async () => {
@@ -41,6 +42,7 @@ describe('GET /products', () => {
 describe('GET /products/:id', () => {
   test('It should return a product by ID', async () => {
     const seedRes = await seedProduct(); 
+    createdProductIds.push(seedRes.body.id);
     const response = await supertest(app).get(`/products/${seedRes.body.id}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('id', response.body.id);
@@ -49,7 +51,7 @@ describe('GET /products/:id', () => {
     expect(response.body).toHaveProperty('price');
     expect(response.body).toHaveProperty('image_url');
 
-    createdProductIds.push(seedRes.body.id);
+    
   });
 
   test('It should return 404 for a non-existing product', async () => {
@@ -62,18 +64,14 @@ describe('GET /products/:id', () => {
 describe('POST /products', () => { // Fixed endpoint name from /products/:id to /products
   test('It returns a body with an ID', async () => {
     const response = await seedProduct();
-    expect(response.body).toHaveProperty('id');
-    
-    // Track for cleanup
     createdProductIds.push(response.body.id);
+    expect(response.body).toHaveProperty('id');
   });
 
   test('It creates a new product', async () => {
     const response = await seedProduct(); 
-    expect(response.status).toBe(201);
-    
-    // Track for cleanup
     createdProductIds.push(response.body.id);
+    expect(response.status).toBe(201);
   });
 
   test('it should return 400 if required fields are missing', async () => {
@@ -89,6 +87,7 @@ describe('DELETE Hard /products/:id', () => {
     // Create a product to delete
     const createRes = await seedProduct(); 
     const createdId = createRes.body.id; 
+    createdProductIds.push(createdId)
 
     // Delete the product
     const deleteRes = await supertest(app).delete(`/products/${createdId}`);
@@ -116,9 +115,9 @@ describe('PUT (SOFT DELETE) /products/:id/delete', () => {
     expect(deleteRes.body).toHaveProperty('product');
     expect(deleteRes.body.product.is_deleted).toBe(true);
 
-    // Verify it's still accessible directly
+    // Verify it's not accessible with get
     const getRes = await supertest(app).get(`/products/${createdId}`);
-    expect(getRes.status).toBe(200);
+    expect(getRes.status).toBe(404);
     
     // Check that it doesn't appear in the main listing
     const listRes = await supertest(app).get('/products');
@@ -141,7 +140,7 @@ describe('PATCH /products/:id/stock', () => {
 
   test('It should update the stock value', async () => {
     const response = await seedProduct();
-    createdProductIds.push(response.body.id); // Track for cleanup
+    createdProductIds.push(response.body.id)
 
     await supertest(app)
       .patch(`/products/${response.body.id}/stock`)
@@ -149,28 +148,32 @@ describe('PATCH /products/:id/stock', () => {
 
     const getRes = await supertest(app).get(`/products/${response.body.id}`);
     expect(getRes.body.stock).toBe(20);
+
+    
   });
 
   test("Should return 400 if body.stock is missing", async ()=>{
     const product = await seedProduct();
+    createdProductIds.push(product.body.id)
 
     const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({}); 
 
     expect(res.status).toBe(400); 
     expect(res.body).toHaveProperty('errors'); 
 
-    createdProductIds.push(product.body.id)
+    
   })
 
   test("Should return 400 if stock is NaN", async ()=>{
     const product = await seedProduct(); 
+    createdProductIds.push(product.body.id)
 
     const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({stock: "twenty"}); 
 
     expect(res.status).toBe(400); 
     expect(res.body).toHaveProperty('errors');
 
-    createdProductIds.push(product.body.id)
+    
   })
 
   test("Should return 404 if product does not exist", async ()=> {
@@ -181,11 +184,12 @@ describe('PATCH /products/:id/stock', () => {
 
   test("Should return the updated product object", async ()=> {
     const product = await seedProduct(); 
+    createdProductIds.push(product.body.id); 
 
     const res = await supertest(app).patch(`/products/${product.body.id}/stock`).send({stock: 20});
 
-    expect(res.body).toHaveProperty('stock', 20);
+    expect(res.body.product).toHaveProperty('stock', 20);
 
-    createdProductIds.push(product.body.id); 
+  
   })
 });
