@@ -1,6 +1,6 @@
 import app from '../src/server.js'; 
 import supertest from 'supertest'; 
-
+import { seedProduct,deleteProduct  } from '../src/utils/testUtils.js';
 
 
 const mockedBody = {
@@ -55,25 +55,20 @@ describe('POST /products/:id', ()=>{
 
 
   test('It returns a body with an ID', async ()=>{
-    const response = await supertest(app).post('/products').send(mockedBody);
-
+    const response =await seedProduct();
+    console.log(response.body);
+    
     expect(response.body).toHaveProperty('id')
 
-    const createdProductId = response.body.id;
-
-
-    await supertest(app).delete(`/products/${createdProductId}`);
+    await deleteProduct(response.body.id); 
   })
 
   test('It creates a new product', async ()=>{
-   
-
-    const response = await supertest(app).post('/products').send(mockedBody).set('Contet-Type', 'application/json').set('Accept', 'application/json')
+    const response = await seedProduct(); 
 
     expect(response.status).toBe(201);
 
-    const createdProductId = response.body.id;
-    await supertest(app).delete(`/products/${createdProductId}`);
+    await deleteProduct(response.body.id)
   })
 
   test('it should return 400 if required fields are missing', async ()=>{
@@ -90,7 +85,7 @@ describe('POST /products/:id', ()=>{
 
 describe('DELETE Hard /products/:id', ()=>{
   test('It delets a product by ID', async ()=>{
-    const createRes = await supertest(app).post('/products').send(mockedBody); 
+    const createRes = await seedProduct(); 
     const createdId = createRes.body.id; 
 
     const deleteRes = await supertest(app).delete(`/products/${createdId}`);
@@ -98,12 +93,13 @@ describe('DELETE Hard /products/:id', ()=>{
 
     const getRes = await supertest(app).get(`/producst/${createdId}`);
     expect(getRes.status).toBe(404); 
+    await deleteProduct(createdId);
   })
 })
 
 describe('PUT (SOFT DELETE) /products/delete/:id', () => {
   test('It adds an is_deleted property with true to a product', async () => {
-    const createdRes = await supertest(app).post('/products').send(mockedBody);
+    const createdRes = await seedProduct();
     const createdId = createdRes.body.id;
 
     const deleteRes = await supertest(app)
@@ -118,14 +114,14 @@ describe('PUT (SOFT DELETE) /products/delete/:id', () => {
     expect(getRes.status).toBe(200);
  
     // Cleanup (optional if soft delete just flags it)
-    await supertest(app).delete(`/products/${createdId}`);
+    await deleteProduct(createdId)
   });
 });
 
 describe('PATCH /products/:id/stock', ()=>{
     test('Has valid endpoint', async ()=>{
       
-      const productId = 1
+      
 
       const response = await supertest(app).patch(`/products/${productId}`).send({
         stock: 20

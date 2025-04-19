@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import app from '../src/server.js';
+import app from '../server.js';
 
 export const mockedBody = {
     name: 'Unexpected Error on Line 32',
@@ -10,8 +10,8 @@ export const mockedBody = {
   };
 
   export async function seedProduct(){
-    const response = (await supertest(app).post('/products')).setEncoding(mockedBody);
-    return response.body.id;  
+    const response = await supertest(app).post('/products').send(mockedBody);    
+    return response;
   }
 
   export async function deleteProduct(id){
