@@ -203,7 +203,7 @@ describe("GET /products/soft_deleted", ()=>{
 
     const getSofRes = await supertest(app).get("/products/soft_deleted"); 
 
-    expect(getSofRes.body).toHaveProperty("is_deleted", true);
+    expect(getSofRes.body[0]).toHaveProperty("is_deleted", true);
   })
 })
 

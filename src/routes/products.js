@@ -24,6 +24,23 @@ router.get('/', async (req, res) => {
 });
 
 //TODO: Add a get route where we can see all of the soft deleted products
+router.get("/soft_deleted", async (req,res)=>{
+    try {
+        const result = await db.query(`
+            SELECT p.id, p.name, p.is_deleted
+            FROM products p
+            WHERE p.is_deleted = true
+            `)
+
+        if(result.rows.length <= 0){
+            return res.status(404).json({message: "No deleted products yet"})
+        }
+        res.json(result.rows); 
+    } catch (error) {
+        console.log(error); 
+        res.status(500).json({message: "Database error"});
+    }
+})
 
 router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
     try{
