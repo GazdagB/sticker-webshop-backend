@@ -90,3 +90,5 @@ export async function updateStock(id,stock){
 
     return result.rows[0]; 
 }
+
+//TODO: Add an endpoint where we could revert soft_delete
