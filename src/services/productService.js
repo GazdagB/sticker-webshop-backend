@@ -92,3 +92,10 @@ export async function updateStock(id,stock){
 }
 
 //TODO: Add an endpoint where we could revert soft_delete           
+export async function restoreSoftDelete(id){
+    const result = await db.query(`
+        UPDATE products SET is_deleted = false WHERE id = $1 RETURNING *
+        `, [id])
+
+    return result.rows[0]; 
+}

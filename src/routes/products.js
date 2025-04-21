@@ -2,10 +2,28 @@ import express from "express"
 import db from "../db/index.js"
 import { productValidationRules, validateProductIdParam, productStockValidationRules} from '../validators/productValidator.js';
 import { validate } from '../middlewares/validate.js';
-import { getAllProducts, getAllSoftDeleted, getProductById, hardDelete, postProduct, softDelete, updateProduct, updateStock } from "../services/productService.js";
+import { getAllProducts, getAllSoftDeleted, getProductById, hardDelete, postProduct, restoreSoftDelete, softDelete, updateProduct, updateStock } from "../services/productService.js";
 
 const router = express.Router();
 
+
+
+router.put("/:id/restore", validateProductIdParam, validate, async(req,res)=>{
+    const {id} = req.params;
+    const {stock} = req.body; 
+
+    try {
+        const product = await restoreSoftDelete(id); 
+
+        if(!product){
+            return res.status(404).json({message: 'Product not found!'})
+        }
+    res.json({message: 'Soft Delete Restored', product: product})
+    } catch (error) {
+        console.error('Error restoring soft deleted product:', error);
+        res.status(500).json({error: 'Internal server error'})
+    }
+})
 router.get('/', async (req, res) => {
     try {
         const products = await getAllProducts(); 
@@ -60,6 +78,8 @@ router.post("/", productValidationRules, validate,  async (req, res) => {
         res.status(500).send('Database error');
     }
 })
+
+
 
 router.put("/:id", validateProductIdParam, validate, async (req,res)=>{
     try {
@@ -116,7 +136,7 @@ router.patch("/:id/stock",validateProductIdParam, productStockValidationRules, v
             const product = await updateStock(id,stock)
 
             if(!product){
-                return res.status(404).json({message: "Product not found"})
+                return res.status(404).json({message: "Product not found!"})
             }
         res.json({message: 'Stock updated',product: product})
     } catch (error) {
@@ -124,5 +144,6 @@ router.patch("/:id/stock",validateProductIdParam, productStockValidationRules, v
         res.status(500).json({ error: 'Internal server error' });
     }
 })
+
 
 export default router;

@@ -207,3 +207,21 @@ describe("GET /products/soft_deleted", ()=>{
   })
 })
 
+describe("PUT /products/:id/restore", ()=>{
+  test('Restores a soft-deleted products', async ()=>{
+    const created = await seedProduct(); 
+    const id = created.body.id; 
+    createdProductIds.push(id); 
+
+    await supertest(app).put(`/products/${id}/delete`); 
+
+    const restoreRes = await supertest(app).put(`/products/${id}/restore`);
+    expect(restoreRes.status).toBe(200); 
+    expect(restoreRes.body).toHaveProperty('message'); 
+  })
+
+  test("Returns 404 for non-existing or not-deleted product", async ()=>{
+    const res = await supertest(app).put(`/products/9999/restore`); 
+    expect(res.status).toBe(404)
+  })
+})
