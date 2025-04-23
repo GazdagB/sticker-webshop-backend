@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import app from '../server.js';
 
-export const mockedBody = {
+export const mockedProduct = {
   name: 'Test Product',
   price: 4.99,
   description: 'A test product for automated testing',
@@ -9,12 +9,16 @@ export const mockedBody = {
   category_id: 1
 };
 
-export async function seedProduct(customData = {}) {
-  const testData = { ...mockedBody, ...customData };
-  const response = await supertest(app).post('/products').send(testData);    
+export async function seedData(endpoint, customData = {}) {
+  let testData = {};
+
+  if(endpoint === "products"){
+    testData = {...mockedProduct, ...customData }
+  }
+  const response = await supertest(app).post(`/${endpoint}`).send(testData);    
   return response;
 }
 
-export async function deleteProduct(id) {
-  return await supertest(app).delete(`/products/${id}`);
+export async function deleteData(id,endpoint) {
+  return await supertest(app).delete(`/${endpoint}/${id}`);
 }

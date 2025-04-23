@@ -8,22 +8,7 @@ const router = express.Router();
 
 
 
-router.put("/:id/restore", validateProductIdParam, validate, async(req,res)=>{
-    const {id} = req.params;
-    const {stock} = req.body; 
 
-    try {
-        const product = await restoreSoftDelete(id); 
-
-        if(!product){
-            return res.status(404).json({message: 'Product not found!'})
-        }
-    res.json({message: 'Soft Delete Restored', product: product})
-    } catch (error) {
-        console.error('Error restoring soft deleted product:', error);
-        res.status(500).json({error: 'Internal server error'})
-    }
-})
 router.get('/', async (req, res) => {
     try {
         const products = await getAllProducts(); 
@@ -37,6 +22,7 @@ router.get('/', async (req, res) => {
         res.status(500).send('Database error');
     }
 });
+
 
 
 router.get("/soft_deleted", async (req,res)=>{
@@ -65,6 +51,22 @@ router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
     } catch(error){
         console.log("Error running query: ", error); 
         res.status(500).send('Database error'); 
+    }
+})
+
+router.put("/:id/restore", validateProductIdParam, validate, async(req,res)=>{
+    const {id} = req.params;
+    console.log("Restore route hit with ID:", req.params.id);
+    try {
+        const product = await restoreSoftDelete(id); 
+
+        if(!product){
+            return res.status(404).json({message: 'Product not found!'})
+        }
+    res.json({message: 'Soft Delete Restored', product: product})
+    } catch (error) {
+        console.error('Error restoring soft deleted product:', error);
+        res.status(500).json({error: 'Internal server error'})
     }
 })
 
