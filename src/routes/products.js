@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// TODO: Build an endpoint that deletes all the products 
 
 
 router.get("/soft_deleted", async (req,res)=>{
