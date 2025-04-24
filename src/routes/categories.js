@@ -1,5 +1,7 @@
 import express from "express"
-import { getAllCategories, getCategoryById } from "../services/categoryService.js";
+import { getAllCategories, getCategoryById , createCategory} from "../services/categoryService.js";
+import { categoryValidationRules } from "../validators/categoryValidator.js";
+import { validate } from "../middlewares/validate.js";
 
 const router = express.Router(); 
 
@@ -29,6 +31,16 @@ router.get('/:id', async (req,res)=>{
     } catch (error) {
         console.error(error); 
         res.status(500).json({message: "Something went wrong"})
+    }
+})
+
+router.post('/', categoryValidationRules, validate,  async (req,res)=>{
+    try {
+        const category = await createCategory(req.body);
+        res.status(201).json(category)
+    } catch (error) {
+        console.error("Error running query: ", error)
+        res.status(500).send('Database error');
     }
 })
 

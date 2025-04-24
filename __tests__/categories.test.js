@@ -1,6 +1,6 @@
 import app from "../src/server.js"; 
 import supertest from "supertest";
-import { deleteData, seedData } from "../src/utils/testUtils.js";
+import { deleteData, mockedCategory, seedData } from "../src/utils/testUtils.js";
 
 const createdCategoryIds = [];
 
@@ -44,5 +44,18 @@ describe("GET /categories/:id", ()=>{
         const res = await supertest(app).get('/categories/9999'); 
         expect(res.status).toBe(404); 
         expect(res.body).toHaveProperty('message')
+    })
+})
+
+describe("POST /categories", ()=>{
+    test('Should create a category and return the created body', async ()=>{
+        const res = await supertest(app).post('/categories').send(mockedCategory)
+        console.log(res);
+        
+        createdCategoryIds.push(res.body.id); 
+
+        expect(res.status).toBe(201); 
+        expect(res.body).toHaveProperty('id', res.body.id );
+        expect(res.body).toHaveProperty('name')
     })
 })

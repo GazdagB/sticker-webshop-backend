@@ -16,3 +16,13 @@ export async function getCategoryById(id){
 
         return result.rows[0];
 }
+
+export async function createCategory(body){
+    const result = await db.query(`
+        INSERT INTO categories (name, description)
+        VALUES ($1, $2) RETURNING *
+        `, [body.name, body.description])
+
+        return result.rows[0];
+}
+
