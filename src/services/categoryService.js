@@ -7,3 +7,12 @@ export async function getAllCategories(){
 
         return result.rows
 }
+
+export async function getCategoryById(id){
+    const result = await db.query(`
+        SELECT id, name, description FROM categories
+        WHERE id = $1
+        `, [id])
+
+        return result.rows[0];
+}

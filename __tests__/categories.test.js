@@ -28,3 +28,21 @@ describe('GET /categories', ()=>{
         expect(res.body[0]).toHaveProperty('description'); 
     })
 })
+
+describe("GET /categories/:id", ()=>{
+    test('Should return the right category', async ()=>{
+        const seededCategory = await seedData("categories");
+        createdCategoryIds.push(seededCategory.body.id)
+
+        const res = await supertest(app).get(`/categories/2`);
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('id', 2 );
+        expect(res.body).toHaveProperty('name')
+    })
+
+    test('should return 404 for non-existent category', async ()=>{
+        const res = await supertest(app).get('/categories/9999'); 
+        expect(res.status).toBe(404); 
+        expect(res.body).toHaveProperty('message')
+    })
+})

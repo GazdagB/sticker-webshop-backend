@@ -9,12 +9,21 @@ export const mockedProduct = {
   category_id: 1
 };
 
+export const mockedCategory = {
+  name: 'Test Category',
+  description: 'A test category for automated testing',
+};
+
+
 export async function seedData(endpoint, customData = {}) {
   let testData = {};
 
   if(endpoint === "products"){
     testData = {...mockedProduct, ...customData }
+  } else if (endpoint === "categories"){
+    testData = {...mockedCategory, ...customData}; 
   }
+  
   const response = await supertest(app).post(`/${endpoint}`).send(testData);    
   return response;
 }
