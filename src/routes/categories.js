@@ -44,4 +44,5 @@ router.post('/', categoryValidationRules, validate,  async (req,res)=>{
     }
 })
 
+//TODO: Add delete and update 
 export default router;
