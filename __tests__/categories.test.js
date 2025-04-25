@@ -59,3 +59,5 @@ describe("POST /categories", ()=>{
         expect(res.body).toHaveProperty('name')
     })
 })
+
+//TODO: Add delete and update test 
