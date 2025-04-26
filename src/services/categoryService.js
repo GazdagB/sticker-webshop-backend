@@ -26,6 +26,15 @@ export async function createCategory(body){
         return result.rows[0];
 }
 
+export async function updateCategory(id, body){
+    const result = await db.query(`
+        UPDATE categories SET name = $1, description = $2, updated_at = NOW()
+        WHERE id = $3 RETURNING *;
+        `, [body.name, body.description, id])
+
+        return result.rows[0];
+}
+
 export async function deleteById(id){
     const result = await db.query(`
         DELETE FROM categories WHERE id = $1 RETURNING *;

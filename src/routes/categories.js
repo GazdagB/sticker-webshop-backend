@@ -1,6 +1,7 @@
 import express from "express"
-import { getAllCategories, getCategoryById , createCategory, deleteById} from "../services/categoryService.js";
-import { categoryValidationRules } from "../validators/categoryValidator.js";
+import { getAllCategories, getCategoryById , createCategory, deleteById, updateCategory} from "../services/categoryService.js";
+import { categoryValidationRules} from "../validators/categoryValidator.js";
+import {validateId} from "../validators/productValidator.js";
 import { validate } from "../middlewares/validate.js";
 
 const router = express.Router(); 
@@ -45,6 +46,22 @@ router.post('/', categoryValidationRules, validate,  async (req,res)=>{
 })
 
 //TODO: Add update route
+router.put('/:id', categoryValidationRules, validateId, validate, async (req,res)=>{
+    const id = req.params.id; 
+
+    try {
+        const category = await updateCategory(id, req.body); 
+
+        if(!category){
+            return res.status(404).json({message: "Couldn't find category"})
+        }
+
+        res.json({message: "Category updated successfully", id: category.id , data: category}); 
+    } catch (error) {
+        console.error(error); 
+        res.status(500).json({message: "Something went wrong"})
+    }
+});
 
 router.delete('/:id', async (req,res)=>{
     const id = req.params.id; 
