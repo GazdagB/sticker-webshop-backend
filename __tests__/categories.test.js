@@ -96,6 +96,27 @@ describe('PUT /categories/:id', () => {
     })
 })
 
+describe('PATCH /categories/:id/delete', ()=>{
+    test('Soft Deletes the correct category', async ()=>{
+        const seededCategory = await seedData('categories'); 
+        createdCategoryIds.push(seededCategory.body.id); 
+
+        const res = await supertest(app).patch(`/categories/${seededCategory.body.id}/delete`); 
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('message', 'Category deleted successfully');
+        expect(res.body).toHaveProperty('id', seededCategory.body.id);
+
+        const getRes = await supertest(app).get(`/categories/${seededCategory.body.id}`);
+        expect(getRes.status).toBe(404);
+    })
+    test('Should return 404 for non-existent category', async () => {
+        const res = await supertest(app).patch('/categories/9999/delete'); 
+
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty('message', "Couldn't find category");
+    })
+})
 describe('DELETE /categories/:id', () => { 
     test('Should delete the correct category', async ()=>{
         const seededCategory = await seedData('categories'); 
