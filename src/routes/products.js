@@ -1,6 +1,6 @@
 import express from "express"
 import db from "../db/index.js"
-import { productValidationRules, validateProductIdParam, productStockValidationRules} from '../validators/productValidator.js';
+import { productValidationRules, validateId, productStockValidationRules} from '../validators/productValidator.js';
 import { validate } from '../middlewares/validate.js';
 import { getAllProducts, getAllSoftDeleted, getProductById, hardDelete, postProduct, restoreSoftDelete, softDelete, updateProduct, updateStock } from "../services/productService.js";
 
@@ -40,7 +40,7 @@ router.get("/soft_deleted", async (req,res)=>{
     }
 })
 
-router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
+router.get("/:id", validateId, validate, async (req,res)=>{
     try{
         const product = await getProductById(req.params.id)
 
@@ -55,7 +55,7 @@ router.get("/:id", validateProductIdParam, validate, async (req,res)=>{
     }
 })
 
-router.put("/:id/restore", validateProductIdParam, validate, async(req,res)=>{
+router.put("/:id/restore", validateId, validate, async(req,res)=>{
     const {id} = req.params;
     console.log("Restore route hit with ID:", req.params.id);
     try {
@@ -84,7 +84,7 @@ router.post("/", productValidationRules, validate,  async (req, res) => {
 
 
 
-router.put("/:id", validateProductIdParam, validate, async (req,res)=>{
+router.put("/:id", validateId, validate, async (req,res)=>{
     try {
         const product = await updateProduct(req.pramas.id, req.body)
 
@@ -99,7 +99,7 @@ router.put("/:id", validateProductIdParam, validate, async (req,res)=>{
     }
 })
 
-router.put("/:id/delete", validateProductIdParam, validate, async (req, res) => {
+router.put("/:id/delete", validateId, validate, async (req, res) => {
     try {
         
         const product = await softDelete(req.params.id)
@@ -115,7 +115,7 @@ router.put("/:id/delete", validateProductIdParam, validate, async (req, res) => 
     }
 });
 
-router.delete("/:id", validateProductIdParam, validate, async (req,res)=>{
+router.delete("/:id", validateId, validate, async (req,res)=>{
     try {
         
         const product = await hardDelete(req.params.id); 
@@ -131,7 +131,7 @@ router.delete("/:id", validateProductIdParam, validate, async (req,res)=>{
     }
 })
 
-router.patch("/:id/stock",validateProductIdParam, productStockValidationRules, validate, async (req,res)=>{
+router.patch("/:id/stock",validateId, productStockValidationRules, validate, async (req,res)=>{
     const {id} = req.params; 
     const {stock} = req.body; 
     

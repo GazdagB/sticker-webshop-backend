@@ -27,6 +27,6 @@ export const productStockValidationRules = [
   .isInt().withMessage('Stock must be an Int')
 ]
 
-export const validateProductIdParam = [
+export const validateId = [
     param('id').isInt({ gt: 0 }).withMessage('Product ID must be a positive integer')
   ];
