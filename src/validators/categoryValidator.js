@@ -8,5 +8,5 @@ export const categoryValidationRules = [
     .isString().withMessage('Name has to be a string'),
 
     body('description')
-    .notEmpty().isString()
+    .notEmpty().isString().withMessage('Description is required'),
 ]
