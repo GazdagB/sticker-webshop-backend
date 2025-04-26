@@ -59,7 +59,7 @@ describe("POST /categories", ()=>{
     })
 })
 
-//TODO: Add delete and update test 
+//TODO: Add update test
 
 describe('DELETE /categories/:id', () => { 
     test('Should delete the correct category', async ()=>{

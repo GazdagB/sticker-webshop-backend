@@ -44,7 +44,7 @@ router.post('/', categoryValidationRules, validate,  async (req,res)=>{
     }
 })
 
-//TODO: Add delete and update 
+//TODO: Add update route
 
 router.delete('/:id', async (req,res)=>{
     const id = req.params.id; 
