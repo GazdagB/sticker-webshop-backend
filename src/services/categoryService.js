@@ -26,3 +26,10 @@ export async function createCategory(body){
         return result.rows[0];
 }
 
+export async function deleteById(id){
+    const result = await db.query(`
+        DELETE FROM categories WHERE id = $1 RETURNING *;
+        `, [id])
+
+        return result.rows[0];
+}
