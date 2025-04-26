@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllCategories, getCategoryById , createCategory, deleteById, updateCategory, softDeleteById} from "../services/categoryService.js";
+import { getAllCategories, getCategoryById , createCategory, deleteById, updateCategory, softDeleteById, restoreById} from "../services/categoryService.js";
 import { categoryValidationRules} from "../validators/categoryValidator.js";
 import {validateId} from "../validators/productValidator.js";
 import { validate } from "../middlewares/validate.js";
@@ -45,6 +45,21 @@ router.post('/', categoryValidationRules, validate,  async (req,res)=>{
     }
 })
 
+router.patch('/:id/restore', validateId, async (req,res)=>{
+    const id = req.params.id; 
+
+    try {
+        const result = await restoreById(id);
+        if(!result){
+            return res.status(404).json({message: "Couldn't find category"})
+        }
+        res.json({message: "Category restored successfully", id: result.id , data: result});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: "Something went wrong"})
+    }
+});
+
 router.patch('/:id/delete', validateId, async (req,res)=>{
     const id = req.params.id; 
 
@@ -59,6 +74,8 @@ router.patch('/:id/delete', validateId, async (req,res)=>{
         res.status(500).json({message: "Something went wrong"})
     }
 });
+
+
 
 //TODO: Add update route
 router.put('/:id', categoryValidationRules, validateId, validate, async (req,res)=>{

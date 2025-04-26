@@ -46,6 +46,15 @@ export async function softDeleteById(id){
         return result.rows[0];
 }
 
+export async function restoreById(id){
+    const result = await db.query(`
+        UPDATE categories SET is_deleted = false        
+        WHERE id = $1 RETURNING *;
+        `, [id])  
+        
+        return result.rows[0];
+};
+
 export async function deleteById(id){
     const result = await db.query(`
         DELETE FROM categories WHERE id = $1 RETURNING *;
