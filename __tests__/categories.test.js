@@ -60,6 +60,41 @@ describe("POST /categories", ()=>{
 })
 
 //TODO: Add update test
+describe('PUT /categories/:id', () => {
+    test('Should update the correct category', async () => {
+        const seededCategory = await seedData('categories'); 
+        createdCategoryIds.push(seededCategory.body.id); 
+
+        const updatedData = {
+            name: 'Updated Category',
+            description: 'Updated description'
+        };
+
+        const res = await supertest(app).put(`/categories/${seededCategory.body.id}`).send(updatedData); 
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('id', seededCategory.body.id);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('message', 'Category updated successfully');
+    });
+
+    test('Should return 404 for non-existent category', async () => {
+        const res = await supertest(app).put('/categories/9999').send({ name: 'Non-existent', description: 'This category does not exist' }); 
+
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty('message', "Couldn't find category");
+    })
+
+    test('Should return 400 for invalid data', async () => {
+        const seededCategory = await seedData('categories'); 
+        createdCategoryIds.push(seededCategory.body.id); 
+
+        const res = await supertest(app).put(`/categories/${seededCategory.body.id}`).send({}); 
+
+        expect(res.status).toBe(400);
+        expect(res.body).toHaveProperty('errors');
+    })
+})
 
 describe('DELETE /categories/:id', () => { 
     test('Should delete the correct category', async ()=>{
