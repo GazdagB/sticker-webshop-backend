@@ -1,6 +1,7 @@
 import express from 'express';
 import productsRouter from './routes/products.js';
 import categoryRouter from "./routes/categories.js"
+import usersRouter from "./routes/users.js";
 
 const app = express(); 
 
@@ -10,6 +11,7 @@ const PORT = process.env.APP_PORT || 8080;
 
 app.use("/products", productsRouter);
 app.use("/categories", categoryRouter )
+app.use("/users", usersRouter);
 
 app.listen(PORT, ()=>{
     console.log(`Listening at port: ${PORT}`);
