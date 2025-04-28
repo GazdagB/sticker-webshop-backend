@@ -11,6 +11,16 @@ export const userValidationRules = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Email must be a valid email address"),
+  body("first_name")
+    .notEmpty()
+    .withMessage("First name is required")
+    .isLength({ min: 2 })
+    .withMessage("First name must be at least 2 characters long"),
+  body("last_name")
+    .notEmpty()
+    .withMessage("Last name is required")
+    .isLength({ min: 2 })
+    .withMessage("Last name must be at least 2 characters long"),
   body("password")
     .notEmpty()
     .withMessage("Password is required")
